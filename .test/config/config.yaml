@@ -1,0 +1,92 @@
+# ====================
+# General Settings
+# ====================
+
+sample_sheet: "config/samples.tsv"
+
+# ====================
+# Binning
+# ====================
+
+# --------------------
+# Tool Selection
+# --------------------
+
+binning:
+  tools:
+    - comebin
+
+  # --------------------
+  # ComeBin
+  # --------------------
+
+  comebin:
+    extra: ""
+
+  # --------------------
+  # MetaBinner
+  # --------------------
+
+  metabinner:
+    install_path: ""
+    scale: "large"
+
+  # --------------------
+  # SemiBin2
+  # --------------------
+
+  semibin2:
+    environment: "global"
+    extra: ""
+
+  # --------------------
+  # MetaBAT2
+  # --------------------
+
+  metabat2:
+    min_contig_length: 1500
+    seed: 1
+    extra: ""
+
+# ====================
+# Refinement
+# ====================
+
+refinement:
+  enabled: false
+  method: "none"
+
+# ====================
+# Domain Separation
+# ====================
+
+domain_separation:
+  fallback_domain: "unknown"
+
+  # --------------------
+  # Tiara
+  # --------------------
+
+  tiara:
+    extra: ""
+
+# ====================
+# Coverage and Abundance
+# ====================
+
+# --------------------
+# CoverM
+# --------------------
+
+coverm:
+  domains:
+    - prok
+    - euk
+  input_mode: "bam"
+  mapper: "minimap2-sr"
+  methods:
+    - relative_abundance
+    - mean
+    - covered_fraction
+  threads: 2
+  extra: ""

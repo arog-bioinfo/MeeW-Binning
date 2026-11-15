@@ -1,0 +1,38 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+description: Sample sheet entries for binning workflow inputs.
+type: object
+properties:
+  sample:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$
+    not:
+      pattern: "[^A-Za-z0-9._-]"
+    description: Sample identifier.
+  contigs:
+    type: string
+    minLength: 1
+    description: Path to assembled contigs FASTA; environment variables and ~ are expanded and relative paths use the Snakemake working directory.
+  bam:
+    type: string
+    minLength: 1
+    description: Path to one mapped-reads BAM or a directory whose sorted direct-child *.bam files are used by MetaBinner, SemiBin2, and MetaBAT2 and accepted by ComeBin; environment variables and ~ are supported.
+  reads_1:
+    type: string
+    description: Optional first paired read path for CoverM coupled input mode.
+  reads_2:
+    type: string
+    description: Optional second paired read path for CoverM coupled input mode.
+  single:
+    type: string
+    description: Optional single-end read path for CoverM single input mode.
+  interleaved:
+    type: string
+    description: Optional interleaved read path for CoverM interleaved input mode.
+
+required:
+  - sample
+  - contigs
+  - bam
+additionalProperties: false

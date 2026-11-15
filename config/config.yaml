@@ -1,0 +1,118 @@
+# ====================
+# General Settings
+# ====================
+
+sample_sheet: "config/samples.tsv"
+
+# Optional root for persistent reference defaults. Blank preserves ambient
+# MEEW_RESOURCES, XDG_DATA_HOME, and home-directory selection.
+resources_root: ""
+
+# CheckM 1 is required by COMEBin and MetaBinner native scoring. database_path
+# is the exact database directory; blank derives checkm1_db below the effective
+# root. Native CheckM paths must not contain whitespace.
+checkm1:
+  database_path: ""
+  download_database: true
+
+# ====================
+# Binning
+# ====================
+
+# --------------------
+# Tool Selection
+# --------------------
+
+binning:
+  tools:
+    - comebin
+
+  # --------------------
+  # ComeBin
+  # --------------------
+
+  comebin:
+    extra: ""
+
+  # --------------------
+  # MetaBinner
+  # --------------------
+
+  metabinner:
+    # Empty checks METABINNER_HOME, then the Bioconda runner on PATH.
+    install_path: ""
+    # Contigs are retained with strict length > this threshold.
+    min_contig_length: 1000
+    scale: "large"
+
+  # --------------------
+  # SemiBin2
+  # --------------------
+
+  semibin2:
+    # Set to null for self-supervised training; multiple BAMs force this mode.
+    environment: "global"
+    sequencing_type: "short_read"
+    extra: ""
+
+  # --------------------
+  # MetaBAT2
+  # --------------------
+
+  metabat2:
+    # Depth is generated from the selected sample's BAM file or BAM directory.
+    min_contig_length: 1500
+    seed: 1
+    extra: ""
+
+# ====================
+# Refinement
+# ====================
+
+refinement:
+  enabled: false
+  method: "none"
+
+  # The fields below are used only when enabled is true and method is das_tool.
+  # euk_source_tool must also occur in binning.tools.
+  euk_source_tool: "comebin"
+
+  das_tool:
+    # DAS Tool's accepted range is 0 through 1.
+    score_threshold: 0.5
+    threads: 8
+
+# ====================
+# Domain Separation
+# ====================
+
+domain_separation:
+  fallback_domain: "unknown"
+
+  # --------------------
+  # Tiara
+  # --------------------
+
+  tiara:
+    extra: ""
+
+# ====================
+# Coverage and Abundance
+# ====================
+
+# --------------------
+# CoverM
+# --------------------
+
+coverm:
+  domains:
+    - prok
+    - euk
+  input_mode: "bam"
+  mapper: "minimap2-sr"
+  methods:
+    - relative_abundance
+    - mean
+    - covered_fraction
+  threads: 4
+  extra: ""

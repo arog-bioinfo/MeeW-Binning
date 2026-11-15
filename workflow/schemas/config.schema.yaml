@@ -1,0 +1,235 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+type: object
+description: Main configuration schema for MeeW-Binning.
+properties:
+  sample_sheet:
+    type: string
+    minLength: 1
+    pattern: "\\S"
+    description: Path to sample sheet TSV; environment variables and ~ are expanded and relative paths use the Snakemake working directory.
+  resources_root:
+    type: string
+    default: ""
+    description: Optional module resource root. Blank or omitted preserves MEEW_RESOURCES, XDG_DATA_HOME/meew, then ~/resources; CheckM 1 derives the checkm1_db child.
+  checkm1:
+    type: object
+    description: Persistent CheckM 1 reference setup used by COMEBin and MetaBinner scoring; native CheckM paths containing whitespace are rejected before expensive work.
+    properties:
+      database_path:
+        type: string
+        default: ""
+        description: Optional exact CheckM 1 database directory. A nonblank value overrides resources_root and ambient roots.
+      download_database:
+        type: boolean
+        default: true
+        description: At COMEBin or MetaBinner job time, use that environment's installed CheckM Bioconda post-link setup when the selected exact directory is absent or empty.
+    additionalProperties: false
+  binning:
+    type: object
+    properties:
+      tools:
+        type: array
+        minItems: 1
+        maxItems: 4
+        uniqueItems: true
+        items:
+          type: string
+          enum: [comebin, metabinner, semibin2, metabat2]
+      comebin:
+        type: object
+        properties:
+          extra:
+            type: string
+        required: [extra]
+      metabinner:
+        type: object
+        properties:
+          install_path:
+            type: string
+            description: Optional MetaBinner source/tool root, Bioconda bin directory, or Conda prefix; when empty, METABINNER_HOME and then command -v run_metabinner.sh are checked. Native MetaBinner paths containing whitespace are rejected early because its shell does not quote every path.
+          min_contig_length:
+            type: integer
+            minimum: 1
+            default: 1000
+            description: Contigs are retained only when their length is strictly greater than this threshold.
+          scale:
+            type: string
+            enum: [small, large, huge]
+        additionalProperties: false
+      semibin2:
+        type: object
+        properties:
+          environment:
+            type: [string, "null"]
+            enum:
+              - human_gut
+              - dog_gut
+              - ocean
+              - soil
+              - cat_gut
+              - human_oral
+              - mouse_gut
+              - pig_gut
+              - built_environment
+              - wastewater
+              - chicken_caecum
+              - global
+              - null
+            description: Pretrained habitat for one BAM; null selects self-supervised training. Multiple BAMs always use self-supervised training.
+          sequencing_type:
+            type: string
+            enum: [short_read, long_read]
+            default: short_read
+            description: Canonical SemiBin2 sequencing algorithm for the assembly.
+          extra:
+            type: string
+        required: [environment, extra]
+      metabat2:
+        type: object
+        properties:
+          min_contig_length:
+            type: integer
+            minimum: 1500
+          seed:
+            type: integer
+            minimum: 0
+            default: 1
+          extra:
+            type: string
+        required: [min_contig_length, extra]
+    required: [tools]
+    allOf:
+      - if:
+          properties:
+            tools:
+              contains:
+                const: comebin
+        then:
+          required: [comebin]
+      - if:
+          properties:
+            tools:
+              contains:
+                const: metabinner
+        then:
+          required: [metabinner]
+      - if:
+          properties:
+            tools:
+              contains:
+                const: semibin2
+        then:
+          required: [semibin2]
+      - if:
+          properties:
+            tools:
+              contains:
+                const: metabat2
+        then:
+          required: [metabat2]
+
+  refinement:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+      method:
+        type: string
+        enum: [none, das_tool]
+      euk_source_tool:
+        type: string
+        enum: [comebin, metabinner, semibin2, metabat2]
+        description: Selected binner whose Tiara-assigned eukaryotic and unknown source FASTAs are preserved in DAS Tool mode.
+      das_tool:
+        type: object
+        properties:
+          score_threshold:
+            type: number
+            minimum: 0
+            maximum: 1
+            default: 0.5
+          threads:
+            type: integer
+            minimum: 1
+            default: 8
+        required: [score_threshold, threads]
+        additionalProperties: false
+    additionalProperties: false
+    required: [enabled, method]
+    allOf:
+      - if:
+          properties:
+            enabled:
+              const: true
+          required: [enabled]
+        then:
+          properties:
+            method:
+              const: das_tool
+          required: [euk_source_tool, das_tool]
+        else:
+          properties:
+            method:
+              const: none
+
+  domain_separation:
+    type: object
+    properties:
+      fallback_domain:
+        type: string
+        enum: [prok, euk, unknown]
+        default: unknown
+      tiara:
+        type: object
+        properties:
+          extra:
+            type: string
+        required: [extra]
+    required: [fallback_domain, tiara]
+
+  coverm:
+    type: object
+    description: Mandatory CoverM coverage and abundance settings; domain and method selection remain configurable.
+    properties:
+      domains:
+        type: array
+        minItems: 1
+        maxItems: 2
+        uniqueItems: true
+        items:
+          type: string
+          enum: [prok, euk]
+        default: [prok, euk]
+        description: Final domains processed by CoverM; unknown bins are never included.
+    not:
+      required: [enabled]
+
+allOf:
+  - not:
+      required: [stage_sheets]
+  - if:
+      properties:
+        refinement:
+          properties:
+            enabled:
+              const: true
+          required: [enabled]
+      required: [refinement]
+    then:
+      properties:
+        binning:
+          properties:
+            tools:
+              minItems: 2
+    else:
+      properties:
+        binning:
+          properties:
+            tools:
+              maxItems: 1
+
+required:
+  - sample_sheet
+  - binning
+  - refinement
+  - domain_separation

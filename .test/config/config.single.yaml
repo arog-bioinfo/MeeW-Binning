@@ -1,0 +1,26 @@
+sample_sheet: ".test/config/samples.tsv"
+
+binning:
+  tools:
+    - comebin
+  comebin:
+    extra: ""
+  metabinner:
+    install_path: ""
+    scale: "large"
+  semibin2:
+    environment: "global"
+    extra: ""
+  metabat2:
+    min_contig_length: 1500
+    seed: 1
+    extra: ""
+
+refinement:
+  enabled: false
+  method: "none"
+
+domain_separation:
+  fallback_domain: "unknown"
+  tiara:
+    extra: ""

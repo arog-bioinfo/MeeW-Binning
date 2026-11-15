@@ -1,0 +1,15 @@
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  # Tiara 1.0.3 requires the legacy NumPy/PyTorch line. Keep the complete
+  # linear-algebra family on the newest MKL build compatible with PyTorch 1.7.1.
+  - python=3.8
+  - tiara=1.0.3=pyhd8ed1ab_0
+  - numpy=1.19.5=py38h8246c76_3
+  - pytorch=1.7.1=cpu_py38h36eccb8_2
+  - mkl=2020.4=h726a3e6_304
+  - libblas=3.9.0=8_mkl
+  - libcblas=3.9.0=8_mkl
+  - liblapack=3.9.0=8_mkl

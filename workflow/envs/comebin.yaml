@@ -1,0 +1,11 @@
+channels:
+  - pytorch
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - comebin=1.0.4
+  - pytorch=1.10.2=py3.7_cuda11.3_cudnn8.2.0_0
+  - cudatoolkit=11.3
+  - mkl=2022
+  - protobuf=3.19.4
